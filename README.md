@@ -176,8 +176,4 @@ O projeto será evoluído para:
 * Melhorias de tratamento de erros;
 * Organização e reutilização das funções de automação.
 
-## Autor
 
-**André Heber Azeredo Coutinho**
-
-Projeto acadêmico/prático desenvolvido para estudo de automação, integração com APIs e manipulação de dados utilizando Python.
