@@ -176,4 +176,9 @@ O projeto será evoluído para:
 * Melhorias de tratamento de erros;
 * Organização e reutilização das funções de automação.
 
+##  Planilha de Dados
+
+Acesse a planilha utilizada pelo projeto para visualizar e acompanhar os dados dos alunos:
+
+[Acessar Planilha do Google Sheets](https://docs.google.com/spreadsheets/d/1iQwnxLE51NhS8aWA1dyVAT_sSS7Rv5QfJq-t75OIAQ4/edit?usp=sharing)
 
