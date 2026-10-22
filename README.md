@@ -31,15 +31,15 @@ O projeto realiza a integração entre Python e Google Sheets para:
 projeto-automacoes/
 │
 ├── main.py
-├── .env
-├── credenciais.json
-├── .gitignore
+├── requirements.txt
 └── README.md
 ```
 
 ### `main.py`
 
 Arquivo principal responsável pela execução da automação.
+
+Os arquivos `.env`, `credenciais.json` e `.gitignore` são mantidos **apenas localmente** e não fazem parte dos arquivos publicados neste repositório.
 
 ### `.env`
 
@@ -60,9 +60,9 @@ Arquivo de credenciais da conta de serviço utilizada para autenticação com os
 
 Por motivos de segurança, esse arquivo não deve ser versionado.
 
-### `.gitignore`
+### `.gitignore` (somente local)
 
-Responsável por impedir que arquivos sensíveis ou desnecessários sejam enviados ao repositório.
+Responsável por impedir que arquivos sensíveis ou desnecessários sejam enviados ao repositório. Por preferência do autor, ele é mantido na máquina, sem publicação no GitHub.
 
 ## Configuração
 
@@ -71,13 +71,13 @@ Responsável por impedir que arquivos sensíveis ou desnecessários sejam enviad
 Execute:
 
 ```bash
-pip install gspread pandas google-auth python-dotenv
+pip install -r requirements.txt
 ```
 
 Caso seja necessário utilizar um proxy:
 
 ```bash
-pip install gspread pandas google-auth python-dotenv --proxy http://10.15.54.158:8080
+pip install -r requirements.txt --proxy http://SEU_PROXY:PORTA
 ```
 
 ### 2. Configurar o Google Cloud
