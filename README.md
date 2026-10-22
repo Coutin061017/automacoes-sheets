@@ -164,21 +164,21 @@ credenciais.json
 
 Por isso, eles devem estar presentes no `.gitignore`.
 
-## Próximas etapas
+## Validações existentes
 
-O projeto será evoluído para:
+- Confere as configurações necessárias no `.env` local e a existência do JSON de credenciais.
+- Verifica se a aba de origem contém dados e uma coluna chamada `Status`.
+- Identifica `Pendente` mesmo com diferenças de maiúsculas e espaços.
+- Mantém o cabeçalho mesmo quando não há pendências.
+- Ajusta o tamanho da aba de saída e evita imprimir dados pessoais no terminal.
 
-* Leitura completa dos alunos;
-* Conversão dos dados para DataFrame;
-* Filtro de alunos com status `Pendente`;
-* Criação da aba `Pendentes`;
-* Atualização automática dos resultados no Google Sheets;
-* Melhorias de tratamento de erros;
-* Organização e reutilização das funções de automação.
+A atualização usa argumentos nomeados `values` e `range_name`, compatíveis com o `gspread` 6.
 
-##  Planilha de Dados
+## Próximas melhorias
 
-Acesse a planilha utilizada pelo projeto para visualizar e acompanhar os dados dos alunos:
+Testes de integração com planilha fictícia, logging e tratamento detalhado de falhas de rede.
 
-[Acessar Planilha do Google Sheets](https://docs.google.com/spreadsheets/d/1iQwnxLE51NhS8aWA1dyVAT_sSS7Rv5QfJq-t75OIAQ4/edit?usp=sharing)
+## Dados de demonstração
+
+Use uma planilha de testes com dados fictícios. O link de uma planilha específica foi retirado da documentação pública por precaução com a privacidade.
 
