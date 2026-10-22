@@ -1,50 +1,83 @@
+"""Filtra alunos pendentes no Google Sheets e atualiza a aba Pendentes."""
+
 import os
+from pathlib import Path
+
 import gspread
 import pandas as pd
 from dotenv import load_dotenv
 
-#  CARREGAR CONFIGURAÇÕES
-load_dotenv()
-credenciais = os.getenv("GOOGLE_CREDENTIALS")
-planilha_id = os.getenv("GOOGLE_SHEETS_ID")
-gc = gspread.service_account(filename=credenciais)
-planilha = gc.open_by_key(planilha_id)
-print("Conexão realizada com sucesso!")
-print("Nome da planilha:", planilha.title)
+BASE_DIR = Path(__file__).resolve().parent
 
-# LER A ABA ALUNOS
-aba = planilha.worksheet("Alunos")
-dados = aba.get_all_records()
-df = pd.DataFrame(dados)
-print("\nlido todos os dados da planilha:")
-print(df)
 
-pendentes = df[df["Status"] == "Pendente"]
-print("Alunos pendentes:")
-print(pendentes)
+def carregar_configuracao():
+    """Valida as configurações antes de conectar ou alterar qualquer planilha."""
+    load_dotenv(BASE_DIR / ".env")
+    nome_credenciais = os.getenv("GOOGLE_CREDENTIALS", "").strip()
+    planilha_id = os.getenv("GOOGLE_SHEETS_ID", "").strip()
 
-# Verificador de aba pendente
-try:
-    aba_pendentes = planilha.worksheet("Pendentes")
+    if not nome_credenciais or not planilha_id:
+        raise ValueError("Configure GOOGLE_CREDENTIALS e GOOGLE_SHEETS_ID no .env local.")
 
-except gspread.WorksheetNotFound:
-    aba_pendentes = planilha.add_worksheet(
-        title="Pendentes",
-        rows=100,
-        cols=10
-    )
-# ENVIAR O RESULTADO PARA A SEGUDA ABA
-valores = [
-    pendentes.columns.tolist()] + pendentes.values.tolist()
+    credenciais = Path(nome_credenciais)
+    if not credenciais.is_absolute():
+        credenciais = BASE_DIR / credenciais
+    if not credenciais.is_file():
+        raise FileNotFoundError("Arquivo de credenciais não encontrado. Confira GOOGLE_CREDENTIALS.")
 
-aba_pendentes.clear()
+    return credenciais, planilha_id
 
-aba_pendentes.update(
-    "A1",
-    valores
-)
 
-print("\n================================")
-print("Processo concluído!")
-print("================================")
-print("A aba 'Pendentes' foi atualizada.")
+def preparar_valores(dados):
+    """Filtra pendências, mantendo o cabeçalho mesmo quando não há resultados."""
+    if not dados:
+        raise ValueError("A aba 'Alunos' está vazia. Nada foi alterado.")
+
+    df = pd.DataFrame(dados)
+    if "Status" not in df.columns:
+        raise ValueError("A coluna obrigatória 'Status' não foi encontrada. Nada foi alterado.")
+
+    filtro = df["Status"].astype(str).str.strip().str.casefold() == "pendente"
+    pendentes = df.loc[filtro].fillna("")
+    valores = [df.columns.tolist()] + pendentes.values.tolist()
+    return valores, len(pendentes)
+
+
+def executar():
+    credenciais, planilha_id = carregar_configuracao()
+    cliente = gspread.service_account(filename=str(credenciais))
+    planilha = cliente.open_by_key(planilha_id)
+
+    aba_alunos = planilha.worksheet("Alunos")
+    valores, quantidade = preparar_valores(aba_alunos.get_all_records())
+
+    try:
+        aba_pendentes = planilha.worksheet("Pendentes")
+    except gspread.WorksheetNotFound:
+        aba_pendentes = planilha.add_worksheet(
+            title="Pendentes", rows=max(100, len(valores)), cols=max(10, len(valores[0]))
+        )
+
+    # Evita erro quando uma atualização exige mais linhas/colunas que a aba atual.
+    if aba_pendentes.row_count < len(valores) or aba_pendentes.col_count < len(valores[0]):
+        aba_pendentes.resize(
+            rows=max(aba_pendentes.row_count, len(valores)),
+            cols=max(aba_pendentes.col_count, len(valores[0])),
+        )
+
+    aba_pendentes.clear()  # Remove resultados antigos antes de gravar a lista atual.
+    aba_pendentes.update(range_name="A1", values=valores)
+    print(f"Planilha atualizada com sucesso: {quantidade} aluno(s) pendente(s).")
+
+
+def main():
+    try:
+        executar()
+    except (ValueError, FileNotFoundError, gspread.exceptions.GSpreadException) as erro:
+        print(f"Erro: {erro}")
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
